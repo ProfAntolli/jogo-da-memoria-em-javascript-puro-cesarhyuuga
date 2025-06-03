@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Jogo da Memória</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    .tabuleiro {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .carta {
+      width: 100px;
+      height: 100px;
+      background: #3498db;
+      color: white;
+      font-size: 2em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      border-radius: 8px;
+      user-select: none;
+    }
+
+    .carta.revelada {
+      background: #2ecc71;
+    }
+
+    .carta.finalizada {
+      background: #95a5a6;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Jogo da Memória</h1>
+  <div class="tabuleiro" id="tabuleiro"></div>
+
+  <script>
+    const emojis = ['🍎', '🍌', '🍇', '🍓', '🍉', '🍍', '🥝', '🍒'];
+    const cartas = [...emojis, ...emojis]; // duplica as cartas
+
+    // embaralhar
+    cartas.sort(() => Math.random() - 0.5);
+
+    const tabuleiro = document.getElementById('tabuleiro');
+    let primeiraCarta = null;
+    let segundaCarta = null;
+    let travar = false;
+
+    cartas.forEach((emoji, index) => {
+      const div = document.createElement('div');
+      div.classList.add('carta');
+      div.dataset.emoji = emoji;
+      div.dataset.index = index;
+      div.textContent = '❓';
+
+      div.addEventListener('click', () => {
+        if (travar || div.classList.contains('revelada') || div.classList.contains('finalizada')) return;
+
+        div.classList.add('revelada');
+        div.textContent = emoji;
+
+        if (!primeiraCarta) {
+          primeiraCarta = div;
+        } else {
+          segundaCarta = div;
+          travar = true;
+
+          if (primeiraCarta.dataset.emoji === segundaCarta.dataset.emoji) {
+            // Acertou!
+            setTimeout(() => {
+              primeiraCarta.classList.add('finalizada');
+              segundaCarta.classList.add('finalizada');
+              primeiraCarta = null;
+              segundaCarta = null;
+              travar = false;
+            }, 500);
+          } else {
+            // Errou
+            setTimeout(() => {
+              primeiraCarta.classList.remove('revelada');
+              segundaCarta.classList.remove('revelada');
+              primeiraCarta.textContent = '❓';
+              segundaCarta.textContent = '❓';
+              primeiraCarta = null;
+              segundaCarta = null;
+              travar = false;
+            }, 1000);
+          }
+        }
+      });
+
+      tabuleiro.appendChild(div);
+    });
+  </script>
+
+</body>
+</html>
